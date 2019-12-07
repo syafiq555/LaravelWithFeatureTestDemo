@@ -6,6 +6,7 @@ use App\Post;
 use App\Http\Requests\PostRequest;
 use App\Handler\Post\CreatePostHandler;
 use App\Handler\Post\DeletePostHandler;
+use App\Handler\Post\UpdatePostHandler;
 
 class PostController extends Controller
 {
@@ -26,14 +27,7 @@ class PostController extends Controller
         return $deletePostHandler($post);
     }
 
-    public function update(PostRequest $request, Post $post) {
-        if(auth()->user()->id == $post->id)
-            return response()->json([
-                'success' => false,
-                'message' => 'Action unauthorized',
-            ], 401);
-            
-        $post->update($request->validated());
-        return response()->json(['success' => true]);
+    public function update(PostRequest $request, Post $post, UpdatePostHandler $updatePostHandler) {
+        return $updatePostHandler($request, $post);
     }
 }

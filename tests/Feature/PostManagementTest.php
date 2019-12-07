@@ -80,7 +80,6 @@ class PostManagementTest extends TestCase
                 'title' => 'post',
                 'body' => 'body'
             ]);
-        Auth::logout();
         
         $editData = [
             'title' => 'post edit',
@@ -93,6 +92,7 @@ class PostManagementTest extends TestCase
         $response->assertOk();
 
         $post = Post::find(1);
+        
         $this->assertEquals('post edit', $post->title);
         $this->assertEquals('body edit', $post->body);
         
