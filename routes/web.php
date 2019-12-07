@@ -1,9 +1,16 @@
 <?php
 
 
-Route::get('/', 'PostController@index');
-Route::post('/posts', 'PostController@store')->middleware('auth');
-Route::delete('/posts/{post}', 'PostController@destroy')->middleware('auth');
+Route::group([
+  'prefix' => 'posts',
+  'as' => 'post.',
+  'middleware' => ['auth']
+], function() {
+  Route::get('/', 'PostController@index');
+  Route::post('/', 'PostController@store');
+  Route::delete('/{post}', 'PostController@destroy');
+  Route::put('/{post}', 'PostController@update');
+});
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/', 'HomeController@index')->name('home')->middleware('auth');

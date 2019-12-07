@@ -15,7 +15,6 @@ class PostManagementTest extends TestCase
     /** @test */
     public function a_post_can_be_created()
     {
-        $this->withoutExceptionHandling();
         $this->actingAs($user = factory(User::class)->create())
             ->post('/posts', [
                 'title' => 'post',
@@ -72,7 +71,59 @@ class PostManagementTest extends TestCase
             'success' => false,
             'message' => 'Not authorized'
         ]);
+    }
 
+    /** @test */
+    public function a_post_can_be_edited() {
+        $this->actingAs($user = factory(User::class)->create())
+            ->post('/posts', [
+                'title' => 'post',
+                'body' => 'body'
+            ]);
+        Auth::logout();
+        
+        $editData = [
+            'title' => 'post edit',
+            'body' => 'body edit',
+        ];
 
+        $response = $this->actingAs($user)
+            ->put('posts/1', $editData);
+        
+        $response->assertOk();
+
+        $post = Post::find(1);
+        $this->assertEquals('post edit', $post->title);
+        $this->assertEquals('body edit', $post->body);
+        
+        $response->assertExactJson([
+            'success' => true
+        ]);
+    }
+
+    /** @test */
+    public function a_post_can_be_edited_only_by_owner() {
+        $not_owner = factory(User::class)->create();
+        $this->actingAs(factory(User::class)->create())
+            ->post('/posts', [
+                'title' => 'post',
+                'body' => 'body'
+            ]);
+
+        Auth::logout();
+        
+        $editData = [
+            'title' => 'post edit',
+            'body' => 'body edit',
+        ];
+
+        $response = $this->actingAs($not_owner)
+            ->put('posts/1', $editData);
+        
+        $response->assertStatus(401);
+        $response->assertExactJson([
+            'success' => false,
+            'message' => 'Action unauthorized',
+        ]);
     }
 }

@@ -25,4 +25,15 @@ class PostController extends Controller
     public function destroy(Post $post, DeletePostHandler $deletePostHandler) {
         return $deletePostHandler($post);
     }
+
+    public function update(PostRequest $request, Post $post) {
+        if(auth()->user()->id == $post->id)
+            return response()->json([
+                'success' => false,
+                'message' => 'Action unauthorized',
+            ], 401);
+            
+        $post->update($request->validated());
+        return response()->json(['success' => true]);
+    }
 }
